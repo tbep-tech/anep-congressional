@@ -5,3 +5,109 @@ output:
 self_contained: yes
 runtime: shiny
 ---
+
+# 116th Congressional members within ANEP boundaries
+  
+Source code [here](https://github.com/tbep-tech/anep-congressional) 
+
+```{r setup, message = F, warning = F, results = 'hide', echo = FALSE}
+knitr::opts_chunk$set(echo = F, warning = F, message = F, fig.path = 'figs/', dev.args = list(family = 'serif'), fig.path = 'figures/')
+
+library(tidyverse)
+library(reactable)
+library(here)
+library(mapview)
+library(shiny)
+library(shinyWidgets)
+
+# data(anep)
+# data(cgrs)
+data(hsedat)
+
+downloadButtonRmd <- function (outputId, label = "Download", class = NULL, ...)  {
+  tags$a(id = outputId, class = paste("btn btn-default shiny-download-link", 
+                                      class), href = "", target = "_blank", download = NA, 
+         icon("download"), label, ...)
+}
+
+nepopt <- hsedat %>% 
+  pull(nep) %>% 
+  unique %>% 
+  sort
+```
+
+```{r reactives}
+seldat <- reactive({
+  
+  # inputs
+  nepsel <- input$nepsel
+  
+  out <- hsedat %>% 
+    filter(nep %in% nepsel) %>% 
+    mutate(
+      per_in_shed = round(per_in_shed, 1)
+    ) %>% 
+    select(
+      NEP = nep,
+      Name = name,
+      District = district,
+      State = state, 
+      Office = office, 
+      Party = party, 
+      `% of district in NEP shed` = per_in_shed
+    ) %>% 
+    arrange(NEP, Name)
+  
+  return(out)
+  
+})
+
+# reactable table from seldat
+seltab <- reactive({
+  
+  # input
+  seldat <- seldat()
+  
+  out <- reactable(
+      seldat,
+      groupBy = 'NEP',
+      columns = list(
+          NEP = colDef(name = '', minWidth = 200)
+        ),
+      defaultColDef = colDef(
+        footerStyle = list(fontWeight = "bold"),
+        format = colFormat(digits = 0, separators = TRUE),
+        resizable = TRUE
+      )
+    )
+  
+})
+```
+
+```{r downloads}
+output$dltab <- downloadHandler(
+  filename = function() {'house_data.csv'},
+  content = function(file) {
+    todl <- seldat()
+    write.csv(todl, file, quote = T, row.names = F)
+  }
+)
+```
+
+```{r}
+column(12, 
+       column(6,
+              pickerInput(inputId = "nepsel", label = 'Select NEPs:', choices = nepopt,
+        options = list(`actions-box` = TRUE, size = 20), selected = nepopt, multiple = TRUE)     
+              ), 
+       column(6, 
+              downloadButtonRmd('dltab', 'Download selected data')
+              )
+)
+```
+
+```{r echo = T}
+output$seltab <- renderReactable(seltab()) 
+reactableOutput('seltab')
+```
+

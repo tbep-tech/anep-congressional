@@ -10,8 +10,11 @@ prj <- 4326
 
 anep <- st_read(here::here('data/data-raw/NEP_Boundaries10162018.shp')) %>%
   st_transform(crs = prj) %>% 
-  mutate(nep_area_sqkm = AREA_SQMI * 2.59) %>% 
-  select(nep = NEP_NAME, nep_area_sqkm)
+  mutate(
+    nep_area_sqkm = AREA_SQMI * 2.59, 
+    nep = as.character(NEP_NAME)
+    ) %>% 
+  select(nep, nep_area_sqkm)
 
 save(anep, file = here::here('data/anep.RData'), compress = 'xz')
                   
