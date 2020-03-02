@@ -1,9 +1,9 @@
 ---
 output: 
-  html_document:
-    code_folding: hide
+  html_document
 self_contained: yes
 runtime: shiny
+css: styles.css
 ---
 
 # 116th Congressional members within ANEP boundaries
@@ -20,8 +20,10 @@ library(mapview)
 library(shiny)
 library(shinyWidgets)
 
-# data(anep)
-# data(cgrs)
+# # style file
+# styles <- readLines('https://raw.githubusercontent.com/tbep-tech/css-styling/master/styles.css')
+# writeLines(styles, 'styles.css')
+
 data(hsedat)
 
 downloadButtonRmd <- function (outputId, label = "Download", class = NULL, ...)  {
@@ -106,8 +108,10 @@ column(12,
 )
 ```
 
-```{r echo = T}
+```{r}
 output$seltab <- renderReactable(seltab()) 
-reactableOutput('seltab')
+fillCol(
+  reactableOutput('seltab')
+)
 ```
 

@@ -18,7 +18,6 @@ anep <- st_read(here::here('data/data-raw/NEP_Boundaries10162018.shp')) %>%
 
 save(anep, file = here::here('data/anep.RData'), compress = 'xz')
                   
-
 # congressional boundaries for NEP, not clipped ---------------------------
 
 data(anep)
