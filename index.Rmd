@@ -147,7 +147,7 @@ column(12,
 
 ```{r}
 output$seltab <- renderReactable(seltab()) 
-reactableOutput('seltab')
+reactableOutput('seltab') %>% withSpinner()
 ```
 
 ## ANEP boundaries
