@@ -16,6 +16,10 @@ anep <- st_read(here::here('data/data-raw/NEP_Boundaries10162018.shp')) %>%
     ) %>% 
   select(nep, nep_area_sqkm)
 
+# # replace the polygon for NYNJHEP
+# nynjhep <- st_read(here::here('data/data-raw/HEPScope.shp')) %>%
+#   st_transform(crs = prj) 
+
 save(anep, file = here::here('data/anep.RData'), compress = 'xz')
                   
 # congressional boundaries for NEP, not clipped ---------------------------

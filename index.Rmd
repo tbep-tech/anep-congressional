@@ -1,12 +1,14 @@
 ---
 output: 
-  html_document
+  html_document:
+    includes:
+      in_header: cssloaders_in_header.html
 self_contained: yes
 runtime: shiny
 css: styles.css
 ---
 
-# 116th Congressional members within ANEP boundaries
+# 116th Congressional members within ANEP boundaries {.tabset .tabset-pills}
   
 Source code [here](https://github.com/tbep-tech/anep-congressional) 
 
@@ -19,12 +21,18 @@ library(here)
 library(mapview)
 library(shiny)
 library(shinyWidgets)
+library(shinycssloaders)
+library(leaflet)
 
 # # style file
 # styles <- readLines('https://raw.githubusercontent.com/tbep-tech/css-styling/master/styles.css')
 # writeLines(styles, 'styles.css')
 
+data(anep)
+data(cgrs)
 data(hsedat)
+
+mptyps <- c("CartoDB.Positron", "CartoDB.DarkMatter", "OpenStreetMap", "Esri.WorldImagery", "OpenTopoMap")
 
 downloadButtonRmd <- function (outputId, label = "Download", class = NULL, ...)  {
   tags$a(id = outputId, class = paste("btn btn-default shiny-download-link", 
@@ -84,6 +92,33 @@ seltab <- reactive({
     )
   
 })
+
+# map selection
+selmap <- reactive({
+  
+  nepsel <- input$nepsel
+  seldat <- seldat()
+  
+  req(nepsel)
+  
+  # anep boundaries
+  `NEP boundaries` <- anep %>% 
+    filter(nep %in% nepsel)
+
+  # cgrs boundaries
+  `Congressional boundaries` <- cgrs %>% 
+    filter(district %in% seldat$District & state %in% seldat$State) %>% 
+    unite('lab', state, district, sep = ' ')
+  
+  out1 <- mapview(`NEP boundaries`, label = `NEP boundaries`$nep, legend = F, map.types = mptyps)
+  out2 <- mapview(`Congressional boundaries`, col.regions = 'tomato1', label = `Congressional boundaries`$lab, legend = F, map.types = mptyps)
+  
+  out <- out2 + out1
+  out <- out@map
+  
+  return(out)
+  
+})
 ```
 
 ```{r downloads}
@@ -108,10 +143,18 @@ column(12,
 )
 ```
 
+## Table
+
 ```{r}
 output$seltab <- renderReactable(seltab()) 
-fillCol(
-  reactableOutput('seltab')
-)
+reactableOutput('seltab')
 ```
 
+## ANEP boundaries
+
+```{r}
+output$selmap <- renderLeaflet(selmap())
+column(12, 
+  leafletOutput('selmap', height = 700) %>% withSpinner()
+)
+```
