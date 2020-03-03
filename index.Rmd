@@ -103,7 +103,7 @@ selmap <- reactive({
   
   # merge seldat state and districts
   seldatmrg <- seldat %>% 
-    unite('lab', state, district, sep = ' ')
+    unite('lab', State, District, sep = ' ')
   
   # anep boundaries
   `NEP boundaries` <- anep %>% 
