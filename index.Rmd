@@ -101,15 +101,19 @@ selmap <- reactive({
   
   req(nepsel)
   
+  # merge seldat state and districts
+  seldatmrg <- seldat %>% 
+    unite('lab', state, district, sep = ' ')
+  
   # anep boundaries
   `NEP boundaries` <- anep %>% 
     filter(nep %in% nepsel)
 
   # cgrs boundaries
   `Congressional boundaries` <- cgrs %>% 
-    filter(district %in% seldat$District & state %in% seldat$State) %>% 
-    unite('lab', state, district, sep = ' ')
-  
+    unite('lab', state, district, sep = ' ') %>% 
+    filter(lab %in% seldatmrg$lab)
+ 
   out1 <- mapview(`NEP boundaries`, label = `NEP boundaries`$nep, legend = F, map.types = mptyps)
   out2 <- mapview(`Congressional boundaries`, col.regions = 'tomato1', label = `Congressional boundaries`$lab, legend = F, map.types = mptyps)
   
