@@ -1,6 +1,6 @@
 # README
 
-Materials to identify congressional members by NEP boundaries
+Materials to identify congressional members by NEP boundaries, [Shiny](http://shiny.tbep.org/anep-congressional/)
 
 All files created in 'R/dat_proc.R'
 
